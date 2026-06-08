@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  /* 1. Add your old custom colors here (automatically generates text-brand, bg-brand, etc.) */
+  --color-brand: #ff5a5f;
+  --color-darkness: #1e1e1e;
+  
+  /* 2. Add your old custom fonts here (generates font-alligator) */
+  --font-alligator: var(--font-alligator), sans-serif;
+}
