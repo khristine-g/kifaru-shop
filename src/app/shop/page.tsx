@@ -1,41 +1,40 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react"; // 👈 Import Suspense
 import { motion } from "framer-motion";
 import { CATEGORIES, getByCategory, type Category, type Product } from "@/lib/products";
 import { useAdminProducts } from "@/lib/adminProducts";
 import { ProductCard } from "@/components/ProductCard";
 
-export default function ShopPage() {
+// 1. Move your entire shop logic into an inner component
+function ShopContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Read current category parameter from URL string fallback to 'all'
   const rawCategory = searchParams.get("category") || "all";
   const validCategories = ["all", "coffee", "textiles", "decor", "jewelry"];
   const category = validCategories.includes(rawCategory) ? rawCategory : "all";
 
-  // Invoked directly without a nested selector to match your hydration wrapper
+  // Safely fallback to an empty array object if adminItems is not fully loaded yet
   const { items: adminItems = [] } = useAdminProducts() || { items: [] };
   
-  // Fetch matching products from local static array data
   const base = getByCategory(category as Category | "all");
   
-  // Filter and safely sanitize dynamic admin item types into standard Product schemas
   const extraFiltered = category === "all" 
     ? adminItems 
-    : adminItems.filter((p: any) => p.category === category);
+    : (adminItems || []).filter((p: any) => p?.category === category);
 
-const extra = extraFiltered.map((p: any) => ({
-  id: p.id || p._id || Math.random().toString(),
-  name: p.name || "Untitled Product",
-  slug: p.slug || p.id || "",
-  image: p.image || "/placeholder.jpg",
-  price: Number(p.price) || 0,
-  category: p.category,
-  tagline: p.tagline || "",
-  badge: p.badge || undefined
-})) as unknown as Product[]; // 👈 Force-casts the entire result array to Product[]
+const extra = (extraFiltered || []).map((p: any) => ({
+  id: p?.id || p?._id || Math.random().toString(),
+  name: p?.name || "Untitled Product",
+  slug: p?.slug || p?.id || "",
+  image: p?.image || "/placeholder.jpg",
+  price: Number(p?.price) || 0,
+  category: p?.category,
+  tagline: p?.tagline || "",
+  badge: p?.badge || undefined
+})) as unknown as Product[]; // 👈 Force-casts the output array directly to Product[]
     
   const products = [...extra, ...base];
 
@@ -44,7 +43,6 @@ const extra = extraFiltered.map((p: any) => ({
     ...CATEGORIES.map((c) => ({ id: c.id, label: c.label })),
   ];
 
-  // Updates parameters seamlessly into the location address bar
   const handleTabClick = (tabId: string) => {
     if (tabId === "all") {
       router.push("/shop");
@@ -63,7 +61,6 @@ const extra = extraFiltered.map((p: any) => ({
         </p>
       </div>
 
-      {/* Navigation Filter Buttons */}
       <div className="flex flex-wrap justify-center gap-2 mb-12">
         {tabs.map((t) => (
           <button
@@ -80,7 +77,6 @@ const extra = extraFiltered.map((p: any) => ({
         ))}
       </div>
 
-      {/* Animated Product Grid Showcase */}
       {products.length === 0 ? (
         <div className="text-center py-12 text-stone-500">
           No products found in this category yet.
@@ -100,5 +96,18 @@ const extra = extraFiltered.map((p: any) => ({
         </div>
       )}
     </div>
+  );
+}
+
+// 2. Export the main default component wrapped in Suspense to fix the prerender error
+export default function ShopPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto px-6 py-24 text-center text-muted-foreground">
+        Loading collection...
+      </div>
+    }>
+      <ShopContent />
+    </Suspense>
   );
 }
