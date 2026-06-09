@@ -74,34 +74,54 @@ export default function CartPage() {
       <h1 className="font-serif-display text-4xl md:text-5xl text-espresso mb-10">Your Cart</h1>
       <div className="grid lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-4">
-          {items.map((item) => (
-            <div key={item.id} className="flex gap-5 p-5 bg-card rounded-2xl shadow-soft">
-              {/* Converted TanStack template routes into direct Next.js href strings */}
-              <Link href={`/product/${item.slug}`} className="w-24 h-24 rounded-xl overflow-hidden bg-secondary flex-shrink-0 block relative">
-                <img src={item.image} alt={item.name} loading="lazy" width={200} height={200} className="w-full h-full object-cover" />
-              </Link>
-              <div className="flex-1 min-w-0">
-                <Link href={`/product/${item.slug}`} className="font-serif-display text-xl text-espresso block mb-1 truncate">
-                  {item.name}
+          {items.map((item) => {
+            // Safe fallback image extraction layer to fix broken asset paths
+            const cartProductImage = item.image || (item as any).imageUrl || (item as any).img || "/placeholder.jpg";
+
+            return (
+              <div key={item.id} className="flex gap-5 p-5 bg-card rounded-2xl shadow-soft">
+                <Link 
+                  href={`/product/${item.slug || item.id}`} 
+                  className="w-24 h-24 rounded-xl overflow-hidden bg-secondary flex-shrink-0 block relative"
+                >
+                  <img 
+                    src={cartProductImage} 
+                    alt={item.name || "Product Image"} 
+                    loading="lazy" 
+                    className="w-full h-full object-cover" 
+                  />
                 </Link>
-                <div className="text-clay font-semibold mb-3">${item.price}</div>
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="inline-flex items-center bg-secondary rounded-full">
-                    <button onClick={() => setQty(item.id, item.quantity - 1)} className="w-9 h-9 flex items-center justify-center hover:bg-accent rounded-full" aria-label="Decrease">
-                      <Minus className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
-                    <button onClick={() => setQty(item.id, item.quantity + 1)} className="w-9 h-9 flex items-center justify-center hover:bg-accent rounded-full" aria-label="Increase">
-                      <Plus className="w-3.5 h-3.5" />
+                <div className="flex-1 min-w-0">
+                  <Link href={`/product/${item.slug || item.id}`} className="font-serif-display text-xl text-espresso block mb-1 truncate">
+                    {item.name}
+                  </Link>
+                  <div className="text-clay font-semibold mb-3">${item.price}</div>
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="inline-flex items-center bg-secondary rounded-full">
+                      <button 
+                        onClick={() => setQty(item.id, item.quantity - 1)} 
+                        className="w-9 h-9 flex items-center justify-center hover:bg-accent rounded-full" 
+                        aria-label="Decrease"
+                      >
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
+                      <button 
+                        onClick={() => setQty(item.id, item.quantity + 1)} 
+                        className="w-9 h-9 flex items-center justify-center hover:bg-accent rounded-full" 
+                        aria-label="Increase"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <button onClick={() => remove(item.id)} className="text-sm text-muted-foreground hover:text-destructive inline-flex items-center gap-1.5">
+                      <Trash2 className="w-4 h-4" /> Remove
                     </button>
                   </div>
-                  <button onClick={() => remove(item.id)} className="text-sm text-muted-foreground hover:text-destructive inline-flex items-center gap-1.5">
-                    <Trash2 className="w-4 h-4" /> Remove
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <aside className="bg-secondary/60 rounded-2xl p-6 h-fit lg:sticky lg:top-28">

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/app/globals.css"; 
-import { CartProvider } from "@/context/CartContext"; // Adjust path if needed
+import "styles.css";
+import { CartProvider } from "@/context/CartContext"; 
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 

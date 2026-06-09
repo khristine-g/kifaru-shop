@@ -162,7 +162,13 @@ export default function AdminPage() {
                   >
                     <div className="w-16 h-16 rounded-xl overflow-hidden bg-secondary shrink-0 relative">
                       {/* Using Next.js Image component for web URLs requires remote patterns in next.config or unoptimized fallback */}
-                      <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+                   <Image 
+    src={p.image} 
+    alt={p.name} 
+    fill
+    sizes="64px"
+    className="object-cover" 
+  />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate">{p.name}</div>

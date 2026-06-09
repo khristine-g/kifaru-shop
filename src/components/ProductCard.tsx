@@ -7,19 +7,14 @@ import { useCart } from "@/context/CartContext";
 import { ArrowUpRight } from "lucide-react";
 
 export function ProductCard({ product }: { product: Product }) {
- 
   const { addToCart } = useCart();
 
   return (
     <div className="group relative flex flex-col">
-    
-      
       <Link
         href={`/product/${product.slug}`}
         className="relative aspect-[4/5] overflow-hidden bg-secondary block rounded-2xl"
       >
-      
-        
         <Image
           src={product.image}
           alt={product.name}
@@ -38,10 +33,11 @@ export function ProductCard({ product }: { product: Product }) {
         <button
           onClick={(e) => {
             e.preventDefault(); 
+            e.stopPropagation(); 
             addToCart(product);
           }}
           aria-label={`Add ${product.name} to cart`}
-          className="absolute bottom-4 right-4 w-12 h-12 rounded-full bg-background text-foreground flex items-center justify-center translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-spring hover:bg-foreground hover:text-background"
+          className="absolute bottom-4 right-4 w-12 h-12 rounded-full bg-background text-foreground flex items-center justify-center translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-spring hover:bg-foreground hover:text-background z-10"
         >
           <ArrowUpRight className="w-5 h-5" />
         </button>

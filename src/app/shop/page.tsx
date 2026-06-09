@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { CATEGORIES, getByCategory, type Category } from "@/lib/products";
+import { CATEGORIES, getByCategory, type Category, type Product } from "@/lib/products";
 import { useAdminProducts } from "@/lib/adminProducts";
 import { ProductCard } from "@/components/ProductCard";
 
@@ -16,15 +16,26 @@ export default function ShopPage() {
   const category = validCategories.includes(rawCategory) ? rawCategory : "all";
 
   // Invoked directly without a nested selector to match your hydration wrapper
-  const { items: adminItems } = useAdminProducts();
+  const { items: adminItems = [] } = useAdminProducts() || { items: [] };
   
   // Fetch matching products from local static array data
   const base = getByCategory(category as Category | "all");
   
-  // Safely filtered using explicit type definitions to prevent array typing mismatch
-  const extra = category === "all" 
+  // Filter and safely sanitize dynamic admin item types into standard Product schemas
+  const extraFiltered = category === "all" 
     ? adminItems 
     : adminItems.filter((p: any) => p.category === category);
+
+const extra = extraFiltered.map((p: any) => ({
+  id: p.id || p._id || Math.random().toString(),
+  name: p.name || "Untitled Product",
+  slug: p.slug || p.id || "",
+  image: p.image || "/placeholder.jpg",
+  price: Number(p.price) || 0,
+  category: p.category,
+  tagline: p.tagline || "",
+  badge: p.badge || undefined
+})) as unknown as Product[]; // 👈 Force-casts the entire result array to Product[]
     
   const products = [...extra, ...base];
 
